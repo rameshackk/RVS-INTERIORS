@@ -4,11 +4,13 @@ import {
   Sparkles, ArrowRight, MessageSquare, Clock, CheckCircle2 
 } from 'lucide-react';
 import { companyData } from '../data/companyData';
+import { brandAssets } from '../assets';
 
 export default function Navbar({ onOpenCalculator, onOpenQuote }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -101,10 +103,11 @@ export default function Navbar({ onOpenCalculator, onOpenQuote }) {
           {/* Logo & Brand Identity */}
           <a href="#hero" className="flex items-center gap-2.5 shrink-0 group">
             <img 
-              src="/logo-icon.png" 
+              src={brandAssets.logoIcon} 
               alt="RVS Interiors Logo" 
               className="w-10 h-10 sm:w-11 sm:h-11 object-contain rounded-xl bg-amber-50/60 p-1 border border-brand-accent/40 group-hover:scale-105 transition-transform duration-300 shadow-xs" 
             />
+
             <div className="flex flex-col">
               <div className="flex items-center gap-1">
                 <span className="text-base sm:text-lg font-extrabold tracking-tight text-brand-primary font-serif-luxury leading-none">

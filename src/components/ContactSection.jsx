@@ -6,8 +6,10 @@ import {
 } from 'lucide-react';
 import { companyData } from '../data/companyData';
 import { servicesData } from '../data/servicesData';
+import { leadService } from '../services/leadService';
 
 export default function ContactSection({ prefillData, onClearPrefill }) {
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -61,37 +63,22 @@ export default function ContactSection({ prefillData, onClearPrefill }) {
       setIsSubmitting(true);
 
       const enquiryRecord = {
-        id: Date.now(),
         ...formData,
         submittedAt: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
         source: 'Website Lead Form'
       };
 
-      // Save to localStorage for Admin Portal & instant export
-      try {
-        const existing = JSON.parse(localStorage.getItem('rvs_enquiries') || '[]');
-        existing.unshift(enquiryRecord);
-        localStorage.setItem('rvs_enquiries', JSON.stringify(existing));
-      } catch (err) {
-        console.error("Local storage error:", err);
-      }
-
-      // Try sending to Formspree if configured or fallback smoothly
-      try {
-        await fetch('https://formspree.io/f/mqkvrkgo', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify(enquiryRecord)
-        }).catch(() => {});
-      } catch (err) {}
+      // Save to Backend Excel Spreadsheet & Local Storage
+      await leadService.submitLead(enquiryRecord);
 
       setTimeout(() => {
         setIsSubmitting(false);
         setSubmitSuccess(true);
         if (onClearPrefill) onClearPrefill();
-      }, 700);
+      }, 500);
     }
   };
+
 
   const handleWhatsAppSend = () => {
     const text = `*New Interior Enquiry - RVS Interior*%0A*Name:* ${formData.name}%0A*Phone:* ${formData.phone}%0A*Location:* ${formData.location || 'Chennai'}%0A*Service:* ${formData.serviceType}%0A*Property:* ${formData.propertyType}%0A*Estimated Budget:* ${formData.estimatedBudget || 'Not specified'}%0A*Requirement:* ${formData.message || 'Free site consultation'}`;

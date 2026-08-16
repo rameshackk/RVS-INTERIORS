@@ -5,17 +5,37 @@ import {
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { companyData } from '../data/companyData';
+import { brandAssets } from '../assets';
+import { leadService } from '../services/leadService';
 
 export default function AdminEnquiriesModal({ isOpen, onClose }) {
   const [enquiries, setEnquiries] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const loadEnquiries = () => {
+  const loadEnquiries = async () => {
+    setIsLoading(true);
     try {
-      const data = JSON.parse(localStorage.getItem('rvs_enquiries') || '[]');
-      setEnquiries(data);
+      const data = await leadService.getLeads();
+      // Normalize rows from either server or localStorage
+      const normalized = data.map((item, idx) => ({
+        id: item.id || item['S.No'] || idx + 1,
+        name: item.name || item['Client Name'] || '',
+        phone: item.phone || item['Mobile Number'] || '',
+        email: item.email || item['Email Address'] || item['Email'] || '',
+        location: item.location || item['Chennai Location'] || '',
+        serviceType: item.serviceType || item['Service Requested'] || '',
+        propertyType: item.propertyType || item['Property Type'] || '',
+        estimatedBudget: item.estimatedBudget || item['Estimated Budget'] || '',
+        message: item.message || item['Client Notes / Requirements'] || item['Client Notes'] || '',
+        submittedAt: item.submittedAt || item['Submitted Date & Time'] || '',
+        source: item.source || item['Lead Source'] || 'Website'
+      }));
+      setEnquiries(normalized);
     } catch (e) {
       setEnquiries([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -24,6 +44,7 @@ export default function AdminEnquiriesModal({ isOpen, onClose }) {
       loadEnquiries();
     }
   }, [isOpen]);
+
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this enquiry?")) {
@@ -85,10 +106,11 @@ export default function AdminEnquiriesModal({ isOpen, onClose }) {
         <div className="p-6 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4 bg-brand-light">
           <div className="flex items-center gap-3">
             <img 
-              src="/logo-icon.png" 
+              src={brandAssets.logoIcon} 
               alt="RVS Interiors Logo" 
               className="w-10 h-10 object-contain rounded-xl bg-white p-1 border border-brand-accent/40 shadow-xs" 
             />
+
             <div>
 
               <span className="text-[10px] text-brand-accent uppercase tracking-widest font-extrabold block">

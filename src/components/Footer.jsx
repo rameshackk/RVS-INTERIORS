@@ -5,8 +5,10 @@ import {
 } from 'lucide-react';
 import { companyData } from '../data/companyData';
 import { servicesData } from '../data/servicesData';
+import { brandAssets } from '../assets';
 
 export default function Footer({ onOpenAdmin, onSelectService }) {
+
   return (
     <footer className="bg-brand-dark text-slate-400 text-xs border-t border-slate-800 pb-20 sm:pb-0">
       
@@ -52,10 +54,11 @@ export default function Footer({ onOpenAdmin, onSelectService }) {
           <div className="lg:col-span-4 space-y-4">
             <div className="flex items-center gap-3">
               <img 
-                src="/logo-cropped.png" 
+                src={brandAssets.logoCropped} 
                 alt="RVS Interiors Logo" 
                 className="w-14 h-14 object-contain rounded-2xl bg-white p-1.5 border border-brand-accent/40 shadow-sm" 
               />
+
               <div className="flex flex-col">
                 <span className="text-lg font-bold text-white font-serif-luxury leading-tight">
                   RVS <span className="text-brand-accent">INTERIORS</span> & BUILDERS

@@ -4,36 +4,38 @@ import {
   Award, CheckCircle2, Star, Phone, Home, Play, ChevronRight 
 } from 'lucide-react';
 import { companyData } from '../data/companyData';
+import { projectAssets } from '../assets';
 
 export default function HeroSection({ onOpenCalculator, onOpenQuote }) {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const heroBanners = [
     {
-      image: "/projects/98545f49d0d134aa30e79e5be19d9d71.jpg",
+      image: projectAssets.projMasterBedroomWardrobe,
       title: "Master Bedroom Wardrobes & LED Ceiling",
       location: "Anna Nagar, Chennai",
       tag: "Luxury Carpentry"
     },
     {
-      image: "/projects/a4d1550e351fd3de3a19ab05a58f1b17.jpg",
+      image: projectAssets.projCommercialOffice,
       title: "Parallel Modular Acrylic Kitchen",
       location: "Arumbakkam, Chennai",
       tag: "Modular Kitchens"
     },
     {
-      image: "/projects/b9a4748fa08cefe0ab059a504d33f13d.jpg",
+      image: projectAssets.projKidsBedroomStudy,
       title: "Natural Wood Veneer Wardrobes",
       location: "Velachery, Chennai",
       tag: "Veneer Finish"
     },
     {
-      image: "/projects/4c2a9421550ffb56b92c1d347dc6e6b1.jpg",
+      image: projectAssets.projWardrobeGlass,
       title: "Corporate Turnkey Office Fitout",
       location: "OMR IT Corridor, Chennai",
       tag: "Commercial Space"
     }
   ];
+
 
   useEffect(() => {
     const timer = setInterval(() => {

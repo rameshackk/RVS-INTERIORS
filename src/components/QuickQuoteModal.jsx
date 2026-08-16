@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { X, Sparkles, Phone, CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
 import { servicesData } from '../data/servicesData';
 import { companyData } from '../data/companyData';
+import { brandAssets } from '../assets';
+import { leadService } from '../services/leadService';
+
 
 export default function QuickQuoteModal({ isOpen, onClose, defaultService }) {
   const [formData, setFormData] = useState({
@@ -14,25 +17,20 @@ export default function QuickQuoteModal({ isOpen, onClose, defaultService }) {
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.phone) return;
 
     const record = {
-      id: Date.now(),
       ...formData,
       submittedAt: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
       source: 'Quick Consultation Modal'
     };
 
-    try {
-      const list = JSON.parse(localStorage.getItem('rvs_enquiries') || '[]');
-      list.unshift(record);
-      localStorage.setItem('rvs_enquiries', JSON.stringify(list));
-    } catch (err) {}
-
+    await leadService.submitLead(record);
     setSubmitted(true);
   };
+
 
   return (
     <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
@@ -68,10 +66,11 @@ export default function QuickQuoteModal({ isOpen, onClose, defaultService }) {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex items-center gap-3 pb-2 border-b border-slate-100">
               <img 
-                src="/logo-icon.png" 
+                src={brandAssets.logoIcon} 
                 alt="RVS Logo" 
                 className="w-11 h-11 object-contain rounded-xl bg-amber-50 p-1 border border-brand-accent/40 shadow-xs shrink-0" 
               />
+
               <div>
                 <span className="inline-block bg-amber-50 text-brand-accentHover text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider mb-0.5">
                   Zero Cost • Free 3D Preview

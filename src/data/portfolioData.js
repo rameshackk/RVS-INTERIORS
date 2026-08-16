@@ -1,3 +1,5 @@
+import { projectAssets } from '../assets';
+
 export const portfolioCategories = [
   { id: "all", label: "All Projects" },
   { id: "carpentry", label: "Wardrobes & Carpentry" },
@@ -16,7 +18,7 @@ export const portfolioData = [
     location: "Anna Nagar, Chennai",
     materials: "Greenply BWP Ply, High-Gloss Acrylic, Ebco Slide Fittings, Warm LED 3000K",
     timeline: "14 Days",
-    image: "/projects/98545f49d0d134aa30e79e5be19d9d71.jpg",
+    image: projectAssets.projMasterBedroomWardrobe,
     tags: ["Sliding Wardrobe", "LED Cove", "False Ceiling", "Teal Theme"]
   },
   {
@@ -28,7 +30,7 @@ export const portfolioData = [
     location: "Adyar, Chennai",
     materials: "Century Pro Ply, Matte Charcoal & Off-White Laminate, Hettich Soft-Close",
     timeline: "12 Days",
-    image: "/projects/baad21b764983983d526d962ba2039e9.jpg",
+    image: projectAssets.projDiningAreaPartition,
     tags: ["Two-Tone", "Geometric Cut", "Matte Finish", "Built-in Dresser"]
   },
   {
@@ -40,7 +42,7 @@ export const portfolioData = [
     location: "Velachery, Chennai",
     materials: "Natural Teak Veneer, PU Clear Coat, Merino Laminates, Concealed Handles",
     timeline: "16 Days",
-    image: "/projects/b9a4748fa08cefe0ab059a504d33f13d.jpg",
+    image: projectAssets.projKidsBedroomStudy,
     tags: ["Wood Veneer", "Floor-to-Ceiling", "PU Polish", "Luxury Bedroom"]
   },
   {
@@ -52,7 +54,7 @@ export const portfolioData = [
     location: "T. Nagar, Chennai",
     materials: "Acrylic Gloss Shutter, Heavy Duty Top Hanging Track, Aluminium Profiles",
     timeline: "10 Days",
-    image: "/projects/9553211551fadf8045ccc624a049cb0f.jpg",
+    image: projectAssets.projLivingFalseCeiling,
     tags: ["High Gloss", "Loft Storage", "Top Hung Sliding", "Modern Minimalist"]
   },
   {
@@ -60,118 +62,134 @@ export const portfolioData = [
     title: "Modular Parallel Kitchen – Teal & Granite Finish",
     category: "interiors",
     categoryLabel: "Modular Kitchens & Living",
-    description: "Spacious parallel layout modular kitchen in teal acrylic finish with grey stone backsplash, tandem soft-close baskets, and integrated chimney setup.",
+    description: "High-end parallel kitchen featuring acrylic sea-foam green cabinetry, galaxy black quartz countertop, tandem box pull-outs, and built-in chimney recess.",
     location: "Arumbakkam, Chennai",
-    materials: "Boiling Water Proof (BWP) 710 Ply, Anti-Scratch Acrylic, Jet Black Granite",
+    materials: "BWP Marine 710 Plywood, Hafele Tandem Boxes, Quartz Counter, Acrylic Shutters",
     timeline: "18 Days",
-    image: "/projects/a4d1550e351fd3de3a19ab05a58f1b17.jpg",
-    tags: ["Parallel Kitchen", "Teal Acrylic", "Tandem Drawers", "Chimney Ducting"]
+    image: projectAssets.projModularKitchen,
+    tags: ["Parallel Kitchen", "Hafele Hardware", "Quartz Top", "Marine 710"]
   },
   {
     id: 6,
-    title: "L-Shaped Wooden Textured Modular Kitchen",
+    title: "Contemporary Minimalist Modular Kitchen",
     category: "interiors",
     categoryLabel: "Modular Kitchens & Living",
-    description: "L-shaped kitchen with natural wood finish cabinets, frosted glass hydraulic shutters, and full granite counter with double bowl under-mount sink.",
-    location: "Porur, Chennai",
-    materials: "Merino Textured Laminate, SS 304 Baskets, Quartz Counter, Hydraulic Lifts",
+    description: "L-shaped ergonomic layout designed with anti-scratch laminate shutters, corner carousel unit, oil-pullout, and under-cabinet ambient task lighting.",
+    location: "Koyambedu, Chennai",
+    materials: "Century Club Prime Ply, Merino Anti-Fingerprint Laminate, Ebco SS Baskets",
     timeline: "15 Days",
-    image: "/projects/d6891d4ffab93b85c8c1c7a7465dba7d.jpg",
-    tags: ["L-Shaped", "Wood Texture", "Hydraulic Shutters", "SS 304 Wire Baskets"]
+    image: projectAssets.projWardrobeGlass,
+    tags: ["L-Shaped", "Anti-Fingerprint", "Task Lighting", "Corner Carousel"]
   },
   {
     id: 7,
-    title: "Corporate Office Modular Workstation Setup",
-    category: "commercial",
-    categoryLabel: "Commercial & Office Fitouts",
-    description: "Large-scale corporate office interior with modular workstations, acoustic grid false ceiling, and ambient linear lighting for 100+ employees.",
-    location: "OMR IT Corridor, Chennai",
-    materials: "Commercial Prelam MDF, Aluminum Raceways, Armstrong Acoustic Ceiling, LED Troffers",
-    timeline: "30 Days",
-    image: "/projects/4c2a9421550ffb56b92c1d347dc6e6b1.jpg",
-    tags: ["IT Workstations", "Acoustic Ceiling", "Linear Lighting", "Cable Raceway"]
+    title: "Living Room False Ceiling & TV Entertainment Console",
+    category: "interiors",
+    categoryLabel: "Modular Kitchens & Living",
+    description: "Multi-layered perimeter false ceiling with RGB LED cove lights, natural fluted panel TV backer, and floating credenza storage.",
+    location: "Porur, Chennai",
+    materials: "Saint-Gobain Gyproc Sheets, Charcoal Louver Panels, Philips Smart LED Coves",
+    timeline: "10 Days",
+    image: projectAssets.projLuxuryLounge,
+    tags: ["TV Unit", "Fluted Panels", "Gyproc Ceiling", "Smart Lighting"]
   },
   {
     id: 8,
-    title: "Open Office – Orange Accent Cubicles",
-    category: "commercial",
-    categoryLabel: "Commercial & Office Fitouts",
-    description: "Modern open-plan office space with cheerful orange partition screens, cable management underflooring, and industrial-style pendant lighting.",
-    location: "Guindy Industrial Estate, Chennai",
-    materials: "Fabric Pinup Partitions, Powder-Coated Metal Frames, Industrial Pendants",
-    timeline: "21 Days",
-    image: "/projects/6835d700137a559c3c7681405f09e06f.jpg",
-    tags: ["Open Office", "Acoustic Fabric", "Custom Desks", "Pendant Fixtures"]
+    title: "Traditional Teak Wood Pooja Room Mandir",
+    category: "interiors",
+    categoryLabel: "Modular Kitchens & Living",
+    description: "Custom CNC cut Jali brass door design, solid teak wood pillar frame, bell insets, and integrated LED backlit deity wall.",
+    location: "Tambaram, Chennai",
+    materials: "100% Solid Burma Teak, CNC Brass Inlay, PU Matt Melamine Polish",
+    timeline: "12 Days",
+    image: projectAssets.projModernPoojaRoom,
+    tags: ["Pooja Mandir", "CNC Jali", "Burma Teak", "Brass Bells"]
   },
   {
     id: 9,
-    title: "Premium Tech Workstation & Storage Center",
+    title: "Corporate Office Interior – Conference & Workstations",
     category: "commercial",
     categoryLabel: "Commercial & Office Fitouts",
-    description: "Stylish open workstation layout with vibrant yellow accent dividers, built-in storage locker walls, and energy-efficient climate lighting systems.",
-    location: "Nungambakkam, Chennai",
-    materials: "Modular Particle Board, Polyurethane Edging, Digital Lock Cabinets",
-    timeline: "25 Days",
-    image: "/projects/b59689fce29c42e124c152b88cb500b8.jpg",
-    tags: ["Tech Office", "Locker Walls", "Yellow Accents", "Ergonomic Layout"]
+    description: "40-seater IT workspace turnkey fitout including acoustic partition glass, meeting room conference table, data cabling, and commercial carpet flooring.",
+    location: "OMR (IT Corridor), Chennai",
+    materials: "Toughened 12mm Glass, Acoustic Wall Panels, Moduform Workstations, LED Troffers",
+    timeline: "30 Days",
+    image: projectAssets.projCommercialOffice,
+    tags: ["Corporate Fitout", "Glass Partition", "Acoustic Panels", "Turnkey IT Office"]
   },
   {
     id: 10,
-    title: "Large-Scale IT Office Turnkey Fitout",
-    category: "commercial",
-    categoryLabel: "Commercial & Office Fitouts",
-    description: "End-to-end turnkey fitout for corporate IT facility including fire-rated partitions, structural server cabling, luxury vinyl flooring, and modular furniture.",
-    location: "Ambattur Industrial Area, Chennai",
-    materials: "Gyproc Fireline Boards, Havells FRLS Cabling, Tarkett Vinyl, Glass Partitions",
-    timeline: "40 Days",
-    image: "/projects/c0cc64f9978f64be1236bde48b58e0c0.jpg",
-    tags: ["Turnkey Fitout", "Glass Partitions", "Server Room", "Vinyl Flooring"]
+    title: "Walk-in Dressing Closet with Sensor LED Profile",
+    category: "renovation",
+    categoryLabel: "Full Turnkey Renovations",
+    description: "Master bedroom suite walk-in wardrobe featuring tinted fluted glass aluminum framed doors, automatic sensor strip lighting, and vanity island.",
+    location: "Maduravoyal, Chennai",
+    materials: "Black Anodized Slim Profiles, Tinted Fluted Glass, German Hinges, Sensor LED",
+    timeline: "20 Days",
+    image: projectAssets.projWalkinCloset,
+    tags: ["Walk-in Closet", "Glass Profile", "Sensor Lighting", "Island Vanity"]
   },
   {
     id: 11,
-    title: "Kitchen Island Pull-Out Storage & Pantry",
-    category: "carpentry",
-    categoryLabel: "Wardrobes & Carpentry",
-    description: "Custom built-in pull-out double bin, spice carousel, and cutlery drawer unit inside kitchen island — seamlessly hidden behind shaker-style cabinet doors.",
-    location: "Mylapore, Chennai",
-    materials: "BWP Marine Ply, German Soft-Close Runners, Stainless Steel Trays",
-    timeline: "8 Days",
-    image: "/projects/37555dc0fefe3ef0e645960d8ba73056.jpg",
-    tags: ["Kitchen Island", "Pull-Out Pantry", "Concealed Bin", "Hardware Engineering"]
-  },
-  {
-    id: 12,
-    title: "Full 3BHK Turnkey Home Renovation",
+    title: "Complete Villa Bathroom & Civil Plumbing Renovation",
     category: "renovation",
     categoryLabel: "Full Turnkey Renovations",
-    description: "Total structural and aesthetic overhaul of a 25-year-old apartment: wall knocking for open plan, full electrical rewire, Italian marble tiling, and luxury modular kitchen.",
-    location: "Kilpauk, Chennai",
-    materials: "Structural Steel Beams, Asian Paints Royale, Greenply Gold, Finolex FRLS",
-    timeline: "45 Days",
-    image: "/projects/d6891d4ffab93b85c8c1c7a7465dba7d.jpg",
-    tags: ["Full Renovation", "Civil Alteration", "Open Floor Plan", "Turnkey Living"]
+    description: "Complete wet area tear-down, waterproof chemical grouting, wall-hung sanitary ware, concealed thermostatic diverter, and floating vanity basin.",
+    location: "Anna Nagar West, Chennai",
+    materials: "Dr. Fixit 2K Waterproofing, Kohler Concealed Diverters, Somany Grand Vitrified Tiles",
+    timeline: "14 Days",
+    image: projectAssets.projBathroomVanityCivil,
+    tags: ["Civil Renovation", "Waterproofing", "Concealed Plumbing", "Luxury Vanity"]
   }
 ];
 
 export const beforeAfterShowcases = [
   {
-    id: "kitchen-makeover",
-    title: "Old Traditional Kitchen → Modern Acrylic Parallel Kitchen",
-    location: "Anna Nagar, Chennai",
-    scope: "Civil demolition of old brick counter, CPVC plumbing renewal, BWP modular cabinetry, Asian Paints washable finish.",
+    id: "living",
+    label: "Living Room & Ceiling",
+    title: "Dated Hall to Luxury Contemporary Lounge",
+    subtitle: "Complete False Ceiling, Fluted Panels, & Lighting in Adyar",
+    location: "Adyar, Chennai",
     duration: "18 Days",
-    costSaved: "₹ 85,000 vs big multi-level studios",
-    beforeImage: "/projects/d6891d4ffab93b85c8c1c7a7465dba7d.jpg",
-    afterImage: "/projects/a4d1550e351fd3de3a19ab05a58f1b17.jpg"
+    beforeImage: projectAssets.projDiningAreaPartition,
+    afterImage: projectAssets.projLuxuryLounge,
+    highlights: [
+      "Perimeter LED cove lighting with warm 3000K mood profile",
+      "Custom fluted charcoal wall panel behind TV unit",
+      "Concealed wiring and acoustic gypsum board treatment"
+    ]
   },
   {
-    id: "bedroom-makeover",
-    title: "Cramped 90s Bedroom → Luxury Sliding Wardrobe & False Ceiling",
-    location: "Adyar, Chennai",
-    scope: "Removed old wood rotting wardrobes, termite barrier treatment, high-gloss floor-to-ceiling sliding systems with LED cove pelmets.",
-    duration: "12 Days",
-    costSaved: "10-Year Warranty with BWP Marine Ply",
-    beforeImage: "/projects/b9a4748fa08cefe0ab059a504d33f13d.jpg",
-    afterImage: "/projects/98545f49d0d134aa30e79e5be19d9d71.jpg"
+    id: "kitchen",
+    label: "Modular Kitchen",
+    title: "Old Civil Kitchen to Marine 710 Modular Setup",
+    subtitle: "Complete Counter Replacement & Acrylic Cabinets in Arumbakkam",
+    location: "Arumbakkam, Chennai",
+    duration: "21 Days",
+    beforeImage: projectAssets.projBathroomVanityCivil,
+    afterImage: projectAssets.projModularKitchen,
+    highlights: [
+      "100% BWP Marine 710 boiling waterproof plywood carcase",
+      "Hafele soft-close tandem drawers and corner carousel",
+      "Quartz countertop with undermount deep granite sink"
+    ]
+  },
+  {
+    id: "wardrobe",
+    label: "Bedroom & Wardrobe",
+    title: "Bare Wall to Floor-to-Ceiling Luxury Wardrobe",
+    subtitle: "Soft-Glide Sliding Wardrobe with Integrated LED in Anna Nagar",
+    location: "Anna Nagar, Chennai",
+    duration: "14 Days",
+    beforeImage: projectAssets.projCommercialOffice,
+    afterImage: projectAssets.projMasterBedroomWardrobe,
+    highlights: [
+      "Heavy duty German top-hung sliding tracks",
+      "Integrated sensor LED lights in wardrobe interior",
+      "Matching loft cabinets maximizing vertical room height"
+    ]
   }
 ];
+
+export const beforeAfterShowcase = beforeAfterShowcases[0];
+
