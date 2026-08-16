@@ -214,7 +214,7 @@ export default function AdminEnquiriesModal({ isOpen, onClose }) {
                     type={showPassword ? 'text' : 'password'}
                     required
                     autoFocus
-                    placeholder="Enter password (JOYCE2810)..."
+                    placeholder="Enter admin password..."
                     value={passwordInput}
                     onChange={(e) => setPasswordInput(e.target.value)}
                     className="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-300 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-accent/50 focus:border-brand-accent transition-all bg-slate-50/50 focus:bg-white"
