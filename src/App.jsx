@@ -75,6 +75,7 @@ export default function App() {
       <Navbar
         onOpenCalculator={handleScrollToCalculator}
         onOpenQuote={() => handleOpenQuoteModal()}
+        onOpenAdmin={() => setIsAdminOpen(true)}
       />
 
       {/* Main Content Sections */}

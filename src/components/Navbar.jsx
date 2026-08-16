@@ -6,7 +6,7 @@ import {
 import { companyData } from '../data/companyData';
 import { brandAssets } from '../assets';
 
-export default function Navbar({ onOpenCalculator, onOpenQuote }) {
+export default function Navbar({ onOpenCalculator, onOpenQuote, onOpenAdmin }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
@@ -66,6 +66,15 @@ export default function Navbar({ onOpenCalculator, onOpenQuote }) {
           </div>
 
           <div className="flex items-center gap-3">
+            {onOpenAdmin && (
+              <button
+                onClick={onOpenAdmin}
+                className="flex items-center gap-1 text-amber-300 hover:text-white transition-colors bg-white/10 hover:bg-white/15 px-2.5 py-0.5 rounded-full text-[10px] font-bold border border-amber-400/30 active:scale-95 cursor-pointer"
+                title="Proprietor Admin Access (R. Stephen)"
+              >
+                <span>🔒 Admin Login</span>
+              </button>
+            )}
             <div className="flex items-center gap-1.5">
               <span className="text-slate-400 text-[10px]">Call:</span>
               <a 
@@ -89,6 +98,7 @@ export default function Navbar({ onOpenCalculator, onOpenQuote }) {
           </div>
         </div>
       </div>
+
 
       {/* Main Sticky Navbar */}
       <header 
@@ -252,6 +262,15 @@ export default function Navbar({ onOpenCalculator, onOpenQuote }) {
                 <MapPin size={12} className="text-brand-accent shrink-0 mt-0.5" />
                 <span>#5/11, Kalainar St, Rani Anna Nagar, Arumbakkam - 106</span>
               </div>
+              {onOpenAdmin && (
+                <button
+                  onClick={() => { setMobileMenuOpen(false); onOpenAdmin(); }}
+                  className="w-full mt-2 py-2 px-3 rounded-xl bg-brand-primary text-amber-300 font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-transform"
+                >
+                  <Shield size={13} className="text-amber-400" />
+                  <span>Proprietor Admin Login (R. Stephen)</span>
+                </button>
+              )}
             </div>
           </div>
         )}
