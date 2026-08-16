@@ -70,6 +70,16 @@ function readLeadsFromExcel() {
 }
 
 /**
+ * Helper: Save array of rows to the Excel sheet
+ */
+function saveLeadsToExcel(rows) {
+  const worksheet = XLSX.utils.json_to_sheet(rows);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, SHEET_NAME);
+  XLSX.writeFile(workbook, EXCEL_FILE_PATH);
+}
+
+/**
  * Helper: Append a new lead record to the Excel sheet
  */
 function appendLeadToExcel(leadData) {
@@ -90,14 +100,42 @@ function appendLeadToExcel(leadData) {
   };
 
   existingRows.push(newRow);
-
-  const worksheet = XLSX.utils.json_to_sheet(existingRows);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, SHEET_NAME);
-  XLSX.writeFile(workbook, EXCEL_FILE_PATH);
+  saveLeadsToExcel(existingRows);
 
   console.log(`[Excel Backend] New Lead recorded for: ${newRow['Client Name']} (${newRow['Mobile Number']})`);
   return newRow;
+}
+
+/**
+ * Helper: Delete a single lead by S.No or Phone/Name match and re-index S.No
+ */
+function deleteLeadFromExcel(identifier) {
+  const existingRows = readLeadsFromExcel();
+  const idNum = Number(identifier);
+
+  const filtered = existingRows.filter((row, idx) => {
+    if (!isNaN(idNum) && row['S.No'] === idNum) {
+      return false;
+    }
+    if (row['Mobile Number'] === String(identifier) || row['Client Name'] === String(identifier)) {
+      return false;
+    }
+    // Also support index-based fallback if passed index (1-based)
+    if (!isNaN(idNum) && idx + 1 === idNum) {
+      return false;
+    }
+    return true;
+  });
+
+  // Re-index remaining rows with clean sequential S.No
+  const updatedRows = filtered.map((row, index) => ({
+    ...row,
+    'S.No': index + 1
+  }));
+
+  saveLeadsToExcel(updatedRows);
+  console.log(`[Excel Backend] Deleted lead (${identifier}). Remaining: ${updatedRows.length}`);
+  return updatedRows;
 }
 
 // ------------------- API ENDPOINTS -------------------
@@ -151,7 +189,40 @@ app.post('/api/leads', (req, res) => {
   }
 });
 
-// 4. GET download live Excel file (.xlsx) directly
+// 4. DELETE a specific lead from Excel
+app.delete('/api/leads/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const remaining = deleteLeadFromExcel(id);
+    res.json({
+      success: true,
+      message: `Lead ${id} successfully deleted from Excel file!`,
+      remainingCount: remaining.length,
+      leads: remaining
+    });
+  } catch (error) {
+    console.error('[Excel Backend Error]:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 5. DELETE clear all leads in Excel
+app.delete('/api/leads-clear-all', (req, res) => {
+  try {
+    saveLeadsToExcel([]);
+    console.log('[Excel Backend] Cleared all leads from RVS_Leads.xlsx');
+    res.json({
+      success: true,
+      message: 'All leads cleared from Excel sheet.',
+      leads: []
+    });
+  } catch (error) {
+    console.error('[Excel Backend Error]:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 6. GET download live Excel file (.xlsx) directly
 app.get('/api/leads/export', (req, res) => {
   try {
     if (!fs.existsSync(EXCEL_FILE_PATH)) {
@@ -171,8 +242,10 @@ app.listen(PORT, () => {
   console.log(`🚀 RVS Leads Excel Backend running on http://localhost:${PORT}`);
   console.log(`📁 Realtime Excel file: ${EXCEL_FILE_PATH}`);
   console.log(`📥 API Endpoints:`);
-  console.log(`   - POST /api/leads        (Store new enquiry in Excel)`);
-  console.log(`   - GET  /api/leads        (Fetch all rows from Excel)`);
-  console.log(`   - GET  /api/leads/export (Download RVS_Leads.xlsx file)`);
+  console.log(`   - POST   /api/leads            (Store new enquiry in Excel)`);
+  console.log(`   - GET    /api/leads            (Fetch all rows from Excel)`);
+  console.log(`   - DELETE /api/leads/:id        (Delete lead row from Excel)`);
+  console.log(`   - DELETE /api/leads-clear-all  (Clear all leads in Excel)`);
+  console.log(`   - GET    /api/leads/export     (Download RVS_Leads.xlsx file)`);
   console.log(`====================================================`);
 });

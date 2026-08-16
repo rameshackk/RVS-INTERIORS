@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   X, Download, Trash2, Phone, MessageSquare, 
-  Search, Shield, Users, RefreshCw, FileSpreadsheet 
+  Search, Shield, Users, RefreshCw, FileSpreadsheet,
+  Lock, KeyRound, Eye, EyeOff, AlertCircle, CheckCircle2, LogOut
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { companyData } from '../data/companyData';
@@ -9,9 +10,37 @@ import { brandAssets } from '../assets';
 import { leadService } from '../services/leadService';
 
 export default function AdminEnquiriesModal({ isOpen, onClose }) {
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return sessionStorage.getItem('rvs_admin_auth') === 'true';
+  });
+  const [passwordInput, setPasswordInput] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [authError, setAuthError] = useState('');
+
   const [enquiries, setEnquiries] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (leadService.verifyPassword(passwordInput)) {
+      setIsAuthenticated(true);
+      sessionStorage.setItem('rvs_admin_auth', 'true');
+      setAuthError('');
+      setPasswordInput('');
+      loadEnquiries();
+    } else {
+      setAuthError('Incorrect Password. Access restricted to Proprietor R. Stephen.');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    sessionStorage.removeItem('rvs_admin_auth');
+    setPasswordInput('');
+    setAuthError('');
+  };
 
   const loadEnquiries = async () => {
     setIsLoading(true);
@@ -20,6 +49,7 @@ export default function AdminEnquiriesModal({ isOpen, onClose }) {
       // Normalize rows from either server or localStorage
       const normalized = data.map((item, idx) => ({
         id: item.id || item['S.No'] || idx + 1,
+        sNo: item['S.No'] || idx + 1,
         name: item.name || item['Client Name'] || '',
         phone: item.phone || item['Mobile Number'] || '',
         email: item.email || item['Email Address'] || item['Email'] || '',
@@ -40,24 +70,30 @@ export default function AdminEnquiriesModal({ isOpen, onClose }) {
   };
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && isAuthenticated) {
       loadEnquiries();
     }
-  }, [isOpen]);
+  }, [isOpen, isAuthenticated]);
 
-
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this enquiry?")) {
-      const updated = enquiries.filter(item => item.id !== id);
-      localStorage.setItem('rvs_enquiries', JSON.stringify(updated));
-      setEnquiries(updated);
+  const handleDelete = async (item) => {
+    const targetIdentifier = item.phone || item.id || item.sNo;
+    if (window.confirm(`Are you sure you want to permanently delete enquiry for "${item.name}" from the Server & Excel Database?`)) {
+      setIsLoading(true);
+      await leadService.deleteLead(targetIdentifier);
+      setStatusMessage(`Deleted lead for ${item.name} from server & Excel database.`);
+      await loadEnquiries();
+      setTimeout(() => setStatusMessage(''), 3500);
     }
   };
 
-  const handleClearAll = () => {
-    if (window.confirm("Are you sure you want to delete ALL enquiries?")) {
-      localStorage.removeItem('rvs_enquiries');
+  const handleClearAll = async () => {
+    if (window.confirm("⚠️ WARNING: Are you sure you want to delete ALL leads from both the Server Excel spreadsheet and local database?")) {
+      setIsLoading(true);
+      await leadService.clearAllLeads();
       setEnquiries([]);
+      setStatusMessage('All leads deleted from server & Excel sheet.');
+      setIsLoading(false);
+      setTimeout(() => setStatusMessage(''), 3500);
     }
   };
 
@@ -77,13 +113,14 @@ export default function AdminEnquiriesModal({ isOpen, onClose }) {
       "Property Size": item.propertyType || '',
       "Estimated Budget": item.estimatedBudget || '',
       "Client Notes": item.message || '',
-      "Submitted Date & Time": item.submittedAt || ''
+      "Submitted Date & Time": item.submittedAt || '',
+      "Source": item.source || 'Website Lead'
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(exportRows);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "RVS_Enquiries");
-    XLSX.writeFile(workbook, `RVS_Interior_Enquiries_${new Date().toISOString().slice(0,10)}.xlsx`);
+    XLSX.writeFile(workbook, `RVS_Interior_Leads_${new Date().toISOString().slice(0,10)}.xlsx`);
   };
 
   if (!isOpen) return null;
@@ -99,158 +136,268 @@ export default function AdminEnquiriesModal({ isOpen, onClose }) {
   });
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-      <div className="bg-white rounded-3xl max-w-5xl w-full max-h-[88vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-fade-in">
+      <div className="bg-white rounded-3xl max-w-5xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden relative">
         
-        {/* Header */}
-        <div className="p-6 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4 bg-brand-light">
-          <div className="flex items-center gap-3">
-            <img 
-              src={brandAssets.logoIcon} 
-              alt="RVS Interiors Logo" 
-              className="w-10 h-10 object-contain rounded-xl bg-white p-1 border border-brand-accent/40 shadow-xs" 
-            />
+        {/* Close Button Top-Right */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors z-10"
+          aria-label="Close modal"
+        >
+          <X size={20} />
+        </button>
+
+        {/* AUTHENTICATION LOCK SCREEN (IF NOT LOGGED IN) */}
+        {!isAuthenticated ? (
+          <div className="p-6 sm:p-12 max-w-md mx-auto my-auto text-center space-y-5">
+            <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-brand-accent/40 flex items-center justify-center mx-auto shadow-sm">
+              <Lock size={30} className="text-brand-accent" />
+            </div>
 
             <div>
-
-              <span className="text-[10px] text-brand-accent uppercase tracking-widest font-extrabold block">
-                Management Portal
+              <span className="text-[10px] font-bold uppercase tracking-widest text-brand-accent block mb-1">
+                Restricted Access
               </span>
-              <h3 className="text-lg font-bold text-brand-primary font-serif-luxury">
-                Client Enquiries & Estimate Leads (R. Stephen)
+              <h3 className="text-xl sm:text-2xl font-bold text-brand-primary font-serif-luxury">
+                Proprietor Admin Portal
               </h3>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleExportExcel}
-              disabled={enquiries.length === 0}
-              className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow transition-all"
-            >
-              <FileSpreadsheet size={14} />
-              <span>Export to Excel (.xlsx)</span>
-            </button>
-
-            {enquiries.length > 0 && (
-              <button
-                onClick={handleClearAll}
-                className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors"
-                title="Clear all records"
-              >
-                <Trash2 size={16} />
-              </button>
-            )}
-
-            <button
-              onClick={onClose}
-              className="p-2 text-slate-500 hover:bg-slate-200 rounded-xl transition-colors"
-            >
-              <X size={20} />
-            </button>
-          </div>
-        </div>
-
-        {/* Filter Bar */}
-        <div className="p-4 px-6 border-b border-slate-100 bg-white flex flex-wrap items-center justify-between gap-3">
-          <div className="relative flex-grow max-w-md">
-            <Search size={15} className="text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search by client name, mobile, location, service..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-accent/30"
-            />
-          </div>
-          <div className="text-xs font-semibold text-slate-500">
-            Total Leads: <strong className="text-brand-primary">{enquiries.length}</strong>
-          </div>
-        </div>
-
-        {/* Leads Table / List */}
-        <div className="p-6 overflow-y-auto flex-grow space-y-3">
-          {filtered.length === 0 ? (
-            <div className="text-center py-16 text-slate-400 space-y-2">
-              <Users size={36} className="mx-auto opacity-30 text-slate-400" />
-              <p className="text-sm font-semibold text-slate-600">No client enquiries found.</p>
-              <p className="text-xs text-slate-400">
-                New estimate requests submitted on the website will populate here automatically.
+              <p className="text-xs text-slate-500 mt-1">
+                Please enter the security password for <strong>R. Stephen</strong> to access client leads and Excel database.
               </p>
             </div>
-          ) : (
-            filtered.map((lead) => (
-              <div
-                key={lead.id}
-                className="p-4 sm:p-5 rounded-2xl bg-brand-light border border-brand-lightBorder hover:border-brand-accent/40 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-sm font-bold text-brand-primary">{lead.name}</h4>
-                    <span className="bg-amber-100 text-brand-accentHover text-[10px] font-bold px-2 py-0.2 rounded-full border border-amber-300">
-                      {lead.serviceType}
-                    </span>
-                    <span className="text-[10px] text-slate-400">{lead.propertyType}</span>
-                  </div>
 
-                  <div className="flex flex-wrap gap-4 text-xs text-slate-600 pt-0.5">
-                    <span><strong>Phone:</strong> <a href={`tel:${lead.phone}`} className="text-brand-primary font-bold hover:underline">{lead.phone}</a></span>
-                    {lead.email && <span><strong>Email:</strong> {lead.email}</span>}
-                    {lead.location && <span><strong>Location:</strong> {lead.location}</span>}
-                    {lead.estimatedBudget && <span className="text-emerald-700 font-semibold"><strong>Budget:</strong> {lead.estimatedBudget}</span>}
-                  </div>
+            {authError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-xs flex items-center gap-2 text-left">
+                <AlertCircle size={16} className="shrink-0 text-red-500" />
+                <span>{authError}</span>
+              </div>
+            )}
 
-                  {lead.message && (
-                    <p className="text-[11px] text-slate-500 italic pt-1">
-                      "{lead.message}"
-                    </p>
-                  )}
-
-                  <span className="text-[10px] text-slate-400 block pt-1">
-                    Submitted: {lead.submittedAt}
-                  </span>
+            <form onSubmit={handleLogin} className="space-y-3 pt-2">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <KeyRound size={16} />
                 </div>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  placeholder="Enter Admin Password..."
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  className="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-300 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-accent transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
 
-                <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
-                  <a
-                    href={`tel:${lead.phone}`}
-                    className="p-2 rounded-xl bg-brand-primary text-white hover:bg-brand-surface shadow-xs transition-colors"
-                    title="Direct Call Client"
-                  >
-                    <Phone size={14} />
-                  </a>
-                  <a
-                    href={`https://wa.me/91${lead.phone.replace(/[^0-9]/g, '')}?text=Hi%20${encodeURIComponent(lead.name)},%20this%20is%20R.%20Stephen%20from%20RVS%20Interior%20&%20Builders.%20I%20received%20your%20enquiry%20for%20${encodeURIComponent(lead.serviceType)}.`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs transition-colors"
-                    title="WhatsApp Client"
-                  >
-                    <MessageSquare size={14} />
-                  </a>
-                  <button
-                    onClick={() => handleDelete(lead.id)}
-                    className="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                    title="Delete lead"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+              <button
+                type="submit"
+                className="w-full py-3.5 bg-gradient-to-r from-brand-primary via-brand-surface to-brand-primary hover:opacity-95 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-md transition-all active:scale-95 cursor-pointer"
+              >
+                Unlock Management Portal
+              </button>
+            </form>
+
+            <div className="pt-2 text-[10px] text-slate-400">
+              Authorized Authority: <strong>R. Stephen (Proprietor & Director)</strong>
+            </div>
+          </div>
+        ) : (
+          /* AUTHENTICATED LEADS DASHBOARD */
+          <>
+            {/* Header */}
+            <div className="p-5 sm:p-6 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4 bg-brand-light">
+              <div className="flex items-center gap-3">
+                <img 
+                  src={brandAssets.logoIcon} 
+                  alt="RVS Interiors Logo" 
+                  className="w-10 h-10 object-contain rounded-xl bg-white p-1 border border-brand-accent/40 shadow-xs shrink-0" 
+                />
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-brand-accent uppercase tracking-widest font-extrabold block">
+                      Proprietor Portal
+                    </span>
+                    <span className="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.2 rounded-full flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                      Authenticated
+                    </span>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-bold text-brand-primary font-serif-luxury">
+                    Client Enquiries & Server Excel Leads
+                  </h3>
                 </div>
               </div>
-            ))
-          )}
-        </div>
 
-        {/* Footer */}
-        <div className="p-4 px-6 border-t border-slate-100 bg-brand-light flex items-center justify-between text-xs text-slate-500">
-          <span>RVS Interior Proprietor Authority Dashboard</span>
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-brand-primary text-white font-bold rounded-xl text-xs"
-          >
-            Close Portal
-          </button>
-        </div>
+              <div className="flex items-center gap-2 pr-8 sm:pr-0">
+                <button
+                  onClick={handleExportExcel}
+                  disabled={enquiries.length === 0}
+                  className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-all cursor-pointer active:scale-95"
+                >
+                  <FileSpreadsheet size={14} />
+                  <span>Download Excel (.xlsx)</span>
+                </button>
+
+                <button
+                  onClick={loadEnquiries}
+                  className="p-2 bg-white text-slate-700 hover:text-brand-accent border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-xs"
+                  title="Refresh Leads from Server"
+                >
+                  <RefreshCw size={15} className={isLoading ? "animate-spin text-brand-accent" : ""} />
+                </button>
+
+                <button
+                  onClick={handleLogout}
+                  className="p-2 bg-slate-100 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                  title="Lock & Logout Admin"
+                >
+                  <LogOut size={15} />
+                </button>
+              </div>
+            </div>
+
+            {/* Notification Banner */}
+            {statusMessage && (
+              <div className="bg-emerald-50 border-b border-emerald-200 px-6 py-2 text-xs text-emerald-800 flex items-center gap-2 font-medium">
+                <CheckCircle2 size={14} className="text-emerald-600" />
+                <span>{statusMessage}</span>
+              </div>
+            )}
+
+            {/* Search & Overview Stats Strip */}
+            <div className="p-4 sm:px-6 bg-slate-50/80 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+              <div className="relative flex-1 min-w-[200px] max-w-md">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search by client name, mobile, location, service..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent"
+                />
+              </div>
+
+              <div className="flex items-center gap-4 text-xs font-semibold text-slate-600">
+                <span>Total Leads: <strong className="text-brand-primary font-bold">{enquiries.length}</strong></span>
+                {enquiries.length > 0 && (
+                  <button
+                    onClick={handleClearAll}
+                    className="text-red-600 hover:text-red-700 text-[11px] font-bold flex items-center gap-1 hover:underline cursor-pointer"
+                  >
+                    <Trash2 size={12} />
+                    <span>Clear All Server Leads</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Leads Table Container */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+              {filtered.length === 0 ? (
+                <div className="text-center py-12 text-slate-400 space-y-3">
+                  <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-400">
+                    <Users size={22} />
+                  </div>
+                  <p className="text-xs sm:text-sm font-medium">
+                    {searchQuery ? "No matching enquiries found for your search." : "No client enquiries recorded yet."}
+                  </p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-xs">
+                  <table className="w-full text-left text-xs text-slate-600">
+                    <thead className="bg-slate-100/80 text-slate-800 uppercase text-[10px] font-extrabold tracking-wider border-b border-slate-200">
+                      <tr>
+                        <th className="px-3.5 py-3">#</th>
+                        <th className="px-3.5 py-3">Client Info</th>
+                        <th className="px-3.5 py-3">Requirement</th>
+                        <th className="px-3.5 py-3">Location & Budget</th>
+                        <th className="px-3.5 py-3">Date & Time</th>
+                        <th className="px-3.5 py-3 text-right">Server Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 bg-white">
+                      {filtered.map((item, idx) => (
+                        <tr key={item.id || idx} className="hover:bg-amber-50/30 transition-colors">
+                          <td className="px-3.5 py-3 font-bold text-slate-400">
+                            {idx + 1}
+                          </td>
+                          <td className="px-3.5 py-3">
+                            <div className="font-bold text-slate-900 text-xs sm:text-sm">{item.name}</div>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <a
+                                href={`tel:${item.phone.replace(/\s+/g, '')}`}
+                                className="font-semibold text-brand-accent hover:underline flex items-center gap-0.5 text-[11px]"
+                              >
+                                <Phone size={10} />
+                                {item.phone}
+                              </a>
+                              {item.email && item.email !== 'Not provided' && (
+                                <span className="text-[10px] text-slate-400 truncate max-w-[120px]">
+                                  • {item.email}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-3.5 py-3">
+                            <span className="inline-block bg-amber-100/70 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-200 mb-0.5">
+                              {item.serviceType || 'Interior'}
+                            </span>
+                            <div className="text-[11px] text-slate-500 font-medium">
+                              Type: {item.propertyType || 'Standard'}
+                            </div>
+                            {item.message && (
+                              <p className="text-[10px] text-slate-400 line-clamp-1 italic mt-0.5">
+                                "{item.message}"
+                              </p>
+                            )}
+                          </td>
+                          <td className="px-3.5 py-3">
+                            <div className="font-semibold text-slate-800 text-[11px]">
+                              {item.location || 'Chennai'}
+                            </div>
+                            <div className="text-[10px] text-emerald-600 font-bold mt-0.5">
+                              Budget: {item.estimatedBudget || 'Quote on site'}
+                            </div>
+                          </td>
+                          <td className="px-3.5 py-3 text-[10px] text-slate-400 whitespace-nowrap">
+                            {item.submittedAt || 'Recent'}
+                          </td>
+                          <td className="px-3.5 py-3 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <a
+                                href={`https://wa.me/91${item.phone.replace(/\D/g, '')}?text=Hi%20${encodeURIComponent(item.name)},%20this%20is%20R.%20Stephen%20from%20RVS%20Interior%20%26%20Builders%20regarding%20your%20project%20enquiry.`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
+                                title="Chat on WhatsApp"
+                              >
+                                <MessageSquare size={13} />
+                              </a>
+                              <button
+                                onClick={() => handleDelete(item)}
+                                className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors cursor-pointer"
+                                title="Delete from Server & Excel"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </>
+        )}
 
       </div>
     </div>
