@@ -58,19 +58,19 @@ export default function BeforeAfterSlider({ onOpenQuote }) {
                   className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
                 />
 
-                {/* Foreground: Before Image clipped */}
+                {/* Foreground: Before Image with clip-path */}
                 <div
-                  className="absolute inset-0 overflow-hidden pointer-events-none"
-                  style={{ width: `${sliderPos}%` }}
+                  className="absolute inset-0 pointer-events-none"
+                  style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}
                 >
                   <img
                     src={current.beforeImage}
                     alt="Before transformation"
-                    className="absolute inset-0 w-full h-full object-cover object-center max-w-none"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
                   />
                   <div className="absolute inset-0 bg-black/15"></div>
                 </div>
+
 
                 {/* Divider Line */}
                 <div
